@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+</head>
+<body>
+<h1 id="ejercicio-6-trabajando-con-índices-en-mongodb">Ejercicio 6: Trabajando con índices en MongoDB</h1>
+<ol type="1">
+<li><p><strong>Crear un índice ascendente sobre el campo "etiqueta_principal" y llamarlo "etiqueta_up"</strong></p>
+<pre><code> db.noticias.createIndex({&quot;etiqueta_principal&quot;:1}, {name: &quot;etiqueta_up&quot;})</code></pre></li>
+<li><p><strong>Crear un índice descendente sobre el campo "etiqueta_principal" y llamarlo "etiqueta_down"</strong></p>
+<pre><code> db.noticias.createIndex({&quot;etiqueta_principal&quot;:-1}, {name: &quot;etiqueta_down&quot;})</code></pre></li>
+<li><p><strong>Obtener la colección de documentos sin utilizar ningún índice (se hace mediante la sentencia hint({$natural:1})) y utilizando los índices creados en los ejercicios anteriores. Comprobad cómo cambia el resultado de la consulta.</strong></p>
+<pre><code> db.noticias.find().hint({$natural: 1})</code></pre>
+<p>En este primer caso, la primera noticia mostrada es "MARTE"</p>
+<pre><code> db.noticias.find().hint(&quot;etiqueta_up&quot;)</code></pre>
+<p>En el segundo, la primera noticia es "Cartas al director"</p>
+<pre><code> db.noticias.find().hint(&quot;etiqueta_down&quot;)</code></pre>
+<p>Con este último, la primera noticia es "WhatsApp"</p></li>
+<li><p><strong>Obtener el documento "FÍSICA"e indicad cual ha sido el plan elegido y el rechazado</strong></p>
+<p>Primero probamos sin indicar índice</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;})</code></pre>
+<p>Con este plan, la búsqueda tarda 0,002 segundos</p>
+<p>Repetimos la búsqueda sin utilizar índices</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint({$natural:1})</code></pre>
+<p>Con este nuevo plan, reducimos el tiempo a 0,001 segundos, con picos de 0.004 segundos.</p>
+<p>Probamos de nuevo, esta vez usando los índices recién creados</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_up&quot;)</code></pre>
+<p>Este índice ofrece unos tiempos muy variables, llegando a 0,005 segundos en ciertas ocasiones. Aunque, en la mayoría de ejecuciones, los tiempos son de 0.001 segundos.</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_down&quot;)</code></pre>
+<p>Con este índice parecen bajar un poco los tiempos, reduciéndose el pico superior a 0,004 segundos, y llegando a un pico inferior de 0 segundos. El tiempo medio parece oscilar entre 0.001 y 0.002 segundos.</p>
+<p>Y con los dos combinados</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_down&quot;,&quot;etiqueta_up&quot;)</code></pre>
+<p>Este parece mantener los tiempos del anterior, aunque bajando un poco mas el pico superior a 0.003 segundos. Los tiempos habituales rondan entre 0 y 0.001 segundos.</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_up&quot;, &quot;etiqueta_down&quot;)</code></pre>
+<p>Este se mantiene en los tiempos del anterior, aunque con una media de ejecución mas estable, entre 0 y 0.001 segundos.</p>
+<p>Por estas razones, elegiremos el último plan, y rechazaremos los anteriores. Aunque la diferencia no es sustancial entre los planes, los primeros demuestran unos tiempos pico algo superiores a los últimos.</p></li>
+<li><p><strong>Obtener el documento "FÍSICA" sin usar índices y usando los índices creados. Mediante el método explain(), observad cuántas claves y cuántos documentos necesita comprobar MongoDB en cada caso</strong></p>
+<p>Para ver los datos de ejecución usaremos la opción "executionStats" sobre el método <code>explain()</code></p>
+<p>Empezamos con la búsqueda por defecto, sin índicar índices</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).explain(&quot;executionStats&quot;)</code></pre>
+<p>Este plan ha requerido consultar 1 documento y 1 clave.</p>
+<p>Ahora repetiremos la búsqueda, pero sin índices:</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint({$natural:1}).explain(&quot;executionStats&quot;)</code></pre>
+<p>Usando este plan, se han necesitado consultar 5 documentos y 0 claves.</p>
+<p>Repetimos el proceso, pero con los índices creados anteriormente</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_up&quot;).explain(&quot;executionStats&quot;)</code></pre>
+<p>Esta búsqueda ha necesitado de 1 clave y 1 documento.</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_down&quot;).explain(&quot;executionStats&quot;)</code></pre>
+<p>Esta muestra el mismo resultado que la anterior, con 1 clave y 1 documento.</p>
+<pre><code> db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_up&quot;,&quot;etiqueta_down&quot;).explain(&quot;executionStats&quot;)
+
+ db.noticias.find({etiqueta_principal: &quot;FÍSICA&quot;}).hint(&quot;etiqueta_down&quot;,&quot;etiqueta_up&quot;).explain(&quot;executionStats&quot;)</code></pre>
+<p>Lo mismo con estas dos combinaciones, con 1 clave y 1 documento.</p></li>
+<li><p><strong>Usando la colección zips, obtener los documentos de las ciudades "MONSON" y, mediante el método explain(), observad cuántos documentos necesita comprobar MongoDB y cuántos milisegundos ha consumido para ejecutar la consulta.</strong></p>
+<pre><code> db.getCollection(&#39;zips&#39;).find({city: &quot;MONSON&quot;}).explain(&quot;executionStats&quot;)</code></pre>
+<p>La búsqueda ha requerido de 29353 documentos y 16 milisegundos.</p></li>
+<li><p><strong>Crear un índice ascendente sobre el campo "ciudad" y volver a realizar la consulta para ver si se reduce el tiempo y el número de documentos examinados</strong></p>
+<p>Creamos el índice con <code>createIndex()</code>, con el nombre <em>city_index</em>.</p>
+<pre><code>db.getCollection(&#39;zips&#39;).createIndex({city:1}, {name: &quot;city_index&quot;})</code></pre>
+<p>Repetimos la búsqueda especificando dicho índice.</p>
+<pre><code>db.getCollection(&#39;zips&#39;).find({city: &quot;MONSON&quot;}).hint(&quot;city_index&quot;).explain(&quot;executionStats&quot;)</code></pre>
+<p>Vemos que la búsqueda se ha reducido a 2 documentos, con 2 claves, y un tiempo de ejecución de 0 milisegundos.</p></li>
+<li><p><strong>En la colección noticias, crear un índice único sobre el campo "autor". Comprobad que no se puede introducir un documento cuyo autor ya exista en la colección</strong></p>
+<p>Creamos el índice, activando la opción <code>unique</code> para restringir la repetición de sus claves.</p>
+<pre><code> db.noticias.createIndex({&quot;autor&quot;: 1}, {unique: true})</code></pre>
+<p>Intentamos añadir esta noticia</p>
+<pre><code> {
+ &quot;etiqueta_principal&quot; : &quot;Noticia nueva&quot;,
+ &quot;titular&quot; : &quot;Esta es una noticia de prueba&quot;,
+ &quot;autor&quot; : &quot;Manuel Ansede&quot;,
+ &quot;fecha&quot; : ISODate(&quot;2015-03-05T21:32:00.000Z&quot;),
+ &quot;etiquetas&quot; : [ 
+     &quot;Prueba&quot;
+ ],
+ &quot;noticia&quot; : &quot;Esta es una noticia de prueba&quot;
+ }</code></pre>
+<p>Ejecutamos el comando <code>insert()</code> para ello</p>
+<pre><code>     db.noticias.insert(
+     {
+     &quot;etiqueta_principal&quot; : &quot;Noticia nueva&quot;,
+     &quot;titular&quot; : &quot;Esta es una noticia de prueba&quot;,
+     &quot;autor&quot; : &quot;Manuel Ansede&quot;,
+     &quot;fecha&quot; : ISODate(&quot;2015-03-05T21:32:00.000Z&quot;),
+     &quot;etiquetas&quot; : [ 
+         &quot;Prueba&quot;
+     ],
+     &quot;noticia&quot; : &quot;Esta es una noticia de prueba&quot;
+     }
+     )</code></pre>
+<p>Vemos como se nos muestra un error, indicando que hay una clave duplicada.</p>
+<pre><code> E11000 duplicate key error collection: elPais.noticias index: autor_1 dup key: { autor: &quot;Manuel Ansede&quot; }</code></pre>
+<p>En el error se nos indica que la clave duplicada corresponde al autor "Manuel Ansede".</p></li>
+<li><p><strong>Crear una consulta para obtener los documentos que contengan la palabra "emoticonos". Comprobad el error que se produce si no se crea, previamente, un índice de texto.</strong></p>
+<p>Intentamos ejecutar la búsqueda con el comando <code>find()</code></p>
+<pre><code> db.noticias.find({$text: {$search: &quot;emoticono&quot;}})</code></pre>
+<p>Se nos muestra un error, indicando que es necesario un índice de texto para dicha búsqueda</p>
+<pre><code> Error: error: {
+ &quot;ok&quot; : 0,
+ &quot;errmsg&quot; : &quot;text index required for $text query&quot;,
+ &quot;code&quot; : 27,
+ &quot;codeName&quot; : &quot;IndexNotFound&quot;
+ }</code></pre></li>
+<li><p><strong>Crear un índice de tipo texto en el campo "noticia" y volver a obtener los documentos que contengan la palabra "emoticonos"</strong></p>
+<p>Creamos el índice</p>
+<pre><code>db.getCollection(&#39;noticias&#39;).createIndex({noticia: &quot;text&quot;})</code></pre>
+<p>Repetimos la búsqueda anterior:</p>
+<pre><code>db.noticias.find({$text: {$search: &quot;emoticono&quot;}})</code></pre>
+<p>Tras la búsqueda, obtenemos la noticia "WhatsApp"</p></li>
+<li><p><strong>Obtener los documentos que contengan la palabra "billete". ¿Se obtiene algún documento?¿Por qué?</strong></p>
+<pre><code>db.noticias.find({$text: {$search: &quot;billete&quot;}})</code></pre>
+<p>No se obtiene ningún documento, porque las ocurrencias de esta palabra están en el campo "comentarios", y nuestro índice solo busca en "noticia".</p></li>
+<li><p><strong>Crear un índice de tipo texto sobre el campo "comentario". ¿Qué tipo de error se produce?</strong></p>
+<p>Intentamos crear el índice</p>
+<pre><code>db.getCollection(&#39;noticias&#39;).createIndex({comentarios: &quot;text&quot;})</code></pre>
+<p>Nos aparece un error:</p>
+<pre><code>/* 1 */
+{
+    &quot;ok&quot; : 0.0,
+    &quot;errmsg&quot; : &quot;Index: { v: 2, key: { _fts: \&quot;text\&quot;, _ftsx: 1 }, name: \&quot;comentarios_text\&quot;, weights: { comentarios: 1 }, default_language: \&quot;english\&quot;, language_override: \&quot;language\&quot;, textIndexVersion: 3 } already exists with different options: { v: 2, key: { _fts: \&quot;text\&quot;, _ftsx: 1 }, name: \&quot;noticia_text\&quot;, weights: { noticia: 1 }, default_language: \&quot;english\&quot;, language_override: \&quot;language\&quot;, textIndexVersion: 3 }&quot;,
+    &quot;code&quot; : 85,
+    &quot;codeName&quot; : &quot;IndexOptionsConflict&quot;
+}</code></pre>
+<p>El error nos dice que hay un conflicto entre los índices, indicando que ya existe un índice de texto con diferentes opciones.</p></li>
+<li><p><strong>Buscar una solución para poder buscar palabras tanto en el campo "noticia"y en el campo "comentario" de los comentarios y de las respuestas</strong></p>
+<p>Como primera solución, hemos usando la <em>wildcard</em> <code>$**</code> para crear un índice compuesto por cada campo de texto del documento</p>
+<pre><code>db.noticias.createIndex({&quot;$**&quot;: &quot;text&quot;})</code></pre>
+<p>Con este obtenemos un resultado satisfactorio, encontrando el documento "MARTE" con la consulta:</p>
+<pre><code>db.noticias.find({$text: {$search: &quot;billete&quot;}})</code></pre>
+<p>Otra forma mas precisa es filtrar únicamente los campos que nos interesan. En nuestro caso, lo hemos conseguido con este índice:</p>
+<pre><code>db.noticias.createIndex(
+{ noticia:&quot;text&quot;, &quot;comentarios.comentario&quot;:&quot;text&quot;, &quot;comentarios.respuestas.comentario&quot;:&quot;text&quot; },
+{ name: &quot;TextIndex&quot; } )</code></pre></li>
+<li><p><strong>Obtener los documentos que tengan la frase "paso a paso"</strong></p>
+<pre><code>db.noticias.find({$text: {$search: &quot;paso a paso&quot;}})</code></pre></li>
+<li><p><strong>Obtener los documentos que contengan la palabra "la". ¿Cuántos documentos devuelve?</strong></p>
+<pre><code>db.noticias.find({$text: {$search: &quot;la&quot;}})</code></pre>
+<p>La consulta devuelve 5 documentos.</p></li>
+<li><p><strong>Eliminar el índice anterior y volver a crearlo especificando el lenguaje español. Volver a recuperar los documentos que contengan la palabra "la". ¿Cuántos documentos devuelve? ¿Por qué?</strong></p>
+<p>Borramos el índice anterior con la función <code>dropIndex()</code></p>
+<pre><code>db.noticias.dropIndex(&quot;TextIndex&quot;)</code></pre>
+<p>Creamos el índice con el atributo <code>default_language</code></p>
+<pre><code>db.noticias.createIndex(
+        {noticia:&quot;text&quot;, &quot;comentarios.comentario&quot;:&quot;text&quot;, &quot;comentarios.respuestas.comentario&quot;:&quot;text&quot; },
+        {default_language: &quot;spanish&quot;} )</code></pre>
+<p>Repetimos la búsqueda:</p>
+<pre><code>db.noticias.find({$text: {$search: &quot;la&quot;}})</code></pre>
+<p>Esta vez, la búsqueda no devuelve ningún documento. Es posible que el índice haya eliminado las palabras no relevantes del castellano, estando el artículo "la" entre ellas.</p></li>
+</ol>
+</body>
+</html>

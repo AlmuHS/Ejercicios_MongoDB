@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+</head>
+<body>
+<h1 id="ejercicio-4">Ejercicio 4</h1>
+<h2 id="modelado-de-datos-en-mongodb">Modelado de datos en MongoDB</h2>
+<h3 id="parte-1-relaciones-1-a-n-con-documentos-integrados">Parte 1. Relaciones 1 a n con documentos integrados</h3>
+<p><strong>a) Añadir, mediante el comando <code>update()</code>, los siguientes comentarios a las noticias</strong></p>
+<ul>
+<li><p><strong>Noticia "MARTE"</strong></p>
+<ul>
+<li><p><strong>Comentario 1</strong><br />
+autor: Luis<br />
+fecha: 6 de marzo de 2015<br />
+comentario: "¿A dónde vamos a ir a parar?"</p>
+<pre><code>  var cursor = db.noticias.find({etiqueta_principal: &quot;MARTE&quot;}, {_id:1})
+  var vID = cursor.next()
+
+  db.noticias.update({_id: vID._id},
+     {$set:{comentarios:[
+         {
+             autor: &quot;Luis&quot;,
+             fecha: ISODate(&quot;2015-03-06&quot;),
+             comentario: &quot;¿A donde vamos a ir a parar?&quot;}]
+         }
+     });</code></pre></li>
+<li><p><strong>Comentario 2</strong><br />
+autor: Sandra<br />
+fecha: 7 de marzo de 2015<br />
+comentario: "Yo me iba a vivir a Marte con tal de quitarme de aquí jeje"</p>
+<ul>
+<li><p><strong>Respuesta 1:</strong><br />
+autor: Tomás<br />
+fecha: 7 de marzo de 2015<br />
+comentario:"¿A cuánto sale el billete de ida y vuelta?"</p>
+<pre><code>  db.noticias.update({_id: vID._id},
+     {$push:{comentarios:
+         {
+             autor: &quot;Sandra&quot;,
+             fecha: ISODate(&quot;2015-03-07&quot;),
+             comentario: &quot;Yo me iba a Marte con tal de quitarme de aquí jeje&quot;,
+             respuestas:[
+             {
+                 autor: &quot;Tomás&quot;,
+                 fecha: ISODate(&quot;2015-03-07&quot;),
+                 comentario: &quot;¿A cuánto sale el billete de ida y vuelta?&quot;
+             }]
+         }
+         }
+     });</code></pre></li>
+</ul></li>
+</ul></li>
+<li><p><strong>Noticia "Whatsapp"</strong></p>
+<ul>
+<li><p><strong>Comentario 1</strong><br />
+autor: Carmen<br />
+fecha: 10 de Marzo de 2015<br />
+comentario: "Pero si son todos amarillos!!!!"</p></li>
+<li><p><strong>Comentario 2</strong><br />
+autor: Tomás fecha: 11 de Marzo de 2015<br />
+comentario: "¿Para cuándo un emoticono de corte de mangas?"</p>
+<ul>
+<li><p><strong>Respuesta 1:</strong><br />
+autor: Lucas<br />
+fecha: 11 de Marzo de 2015<br />
+comentarios: "Por lo menos una peineta, jajaja"</p></li>
+<li><p><strong>Respuesta 2:</strong><br />
+autor: Pili<br />
+fecha: 12 de Marzo de 2015<br />
+comentario: "Seguro que sería el mas usado"</p>
+<pre><code>  db.noticias.update({_id: vID._id},
+     {$set:{comentarios:[
+         {
+             autor: &quot;Carmen&quot;,
+             fecha: ISODate(&quot;2015-03-10&quot;),
+             comentario: &quot;Pero si son todos amarillos!!!!!&quot;
+         },
+         {
+             autor: &quot;Tomás&quot;,
+             fecha: ISODate(&quot;2015-03-11&quot;),
+             comentario: &quot;¿Para cuándo un emoticono de un corte de mangas?&quot;,
+             respuestas:[
+                 {
+                     autor: &quot;Lucas&quot;,
+                     fecha: ISODate(&quot;2015-03-11&quot;),
+                     comentario: &quot;Por lo menos una peineta, jajaja&quot;
+                 },
+
+                 {
+                     autor: &quot;Pili&quot;,
+                     fecha: ISODate(&quot;2015-03-11&quot;),
+                     comentario: &quot;Seguro que sería el mas usado&quot;
+                 }
+             ]
+          }
+      ]
+      }});</code></pre></li>
+</ul></li>
+</ul></li>
+</ul>
+<p><strong>b) Realizar las siguientes consultas</strong></p>
+<ul>
+<li><p>Mostrar la noticia y todos los comentarios de la noticia "Marte". Tiene que mostrar, únicamente, el titular de la noticia y los comentarios, <strong>pero sin las respuestas</strong></p>
+<pre><code>  db.getCollection(&#39;noticias&#39;).aggregate([
+     {$match:{etiqueta_principal:&quot;MARTE&quot;}},
+     {$project:{titular:1, comentarios:1}},
+     {$project:{&quot;comentarios.respuestas&quot;:0}},
+     ])</code></pre></li>
+<li><p>Mostrar, únicamente, las respuestas de los comentarios de la noticia "Whatsapp"</p>
+<pre><code>  db.getCollection(&#39;noticias&#39;).aggregate([
+     {$match:{etiqueta_principal:&quot;WhatsApp&quot;}},    
+     {$project:{&quot;comentarios.respuestas&quot;:1}},
+     ])</code></pre></li>
+<li><p>Mostrar el autor de la primera respuesta del segundo comentario de la noticia "WhatsApp"</p>
+<pre><code>  {
+          var cursor = db.noticias.find(
+              {etiqueta_principal: &quot;WhatsApp&quot;},
+              {_id: 0, comentarios: 1}
+              )
+
+          var noticia = cursor.next()
+
+          print(noticia.comentarios[1].respuestas[0].autor)
+  }</code></pre></li>
+</ul>
+<h3 id="parte-2-relaciones-n-a-n-con-referencias">Parte 2: Relaciones n a n con referencias</h3>
+<p><strong>a) Para añadir las referencias(en ambos sentidos), debemos añadir un campo de tipo array que contendrá los <em>object_id</em> de las noticias relacionadas. Relacionar las siguientes noticias:</strong></p>
+<ul>
+<li><p>Noticia "MARTE" relacionada con "FÍSICA" e "INTELIGENCIA ARTIFICIAL"</p>
+<pre><code>  {
+
+  var not_marte = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;MARTE&quot;}, {_id:1}).next()
+  var id_marte = not_marte._id
+
+  var not_fisica = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal: &quot;FÍSICA&quot;}, {_id:1}).next()
+  var id_fisica = not_fisica._id
+
+  var not_ia = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal: &quot;INTELIGENCIA ARTIFICIAL&quot;}, {_id:1}).next()
+  var id_ia = not_ia._id
+
+  db.noticias.update({_id: id_marte}, 
+                     {$set:{noticias_relacionadas:[id_fisica, id_ia]}
+                         })
+
+  db.noticias.update({_id: id_fisica}, 
+                     {$set:{noticias_relacionadas:[id_marte]}
+                         })
+  db.noticias.update({_id: id_ia}, 
+                     {$set:{noticias_relacionadas:[id_marte]}
+                         })
+  }</code></pre></li>
+<li><p>Noticia "CARTAS AL DIRECTOR" relacionada con "WhatsApp"</p>
+<pre><code>  {
+
+  var not_cartas = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;CARTAS AL DIRECTOR&quot;}, {_id:1}).next()
+  var id_cartas = not_cartas._id
+
+  var not_whatsapp = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;WhatsApp&quot;}, {_id:1}).next()
+  var id_whatsapp = not_whatsapp._id
+
+  db.noticias.update({_id: id_cartas}, 
+                     {$set:noticias_relacionadas:[id_whatsapp]}
+                     )
+
+  db.noticias.update({_id: id_whatsapp}, 
+                     {$set:noticias_relacionadas:[id_cartas]}
+                     )
+
+  }</code></pre></li>
+<li><p>Noticia "FÍSICA" relacionada con "INTELIGENCIA ARTIFICIAL"</p>
+<pre><code>  {
+
+  var not_fisica = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;FÍSICA&quot;}, {_id:1}).next()
+  var id_fisica = not_fisica._id
+
+  var not_ia = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;INTELIGENCIA ARTIFICIAL&quot;}, {_id:1}).next()
+  var id_ia = not_ia._id
+
+  db.noticias.update({_id: id_fisica}, 
+                     {$push:{noticias_relacionadas:id_ia}}
+                     )
+
+  db.noticias.update({_id: id_ia}, 
+                     {$push:{noticias_relacionadas:id_fisica}}
+                     )
+
+  }</code></pre></li>
+</ul>
+<p><strong>b) Realizar la siguiente consulta</strong></p>
+<ul>
+<li><p>Mostrar la etiqueta principal de las noticias relacionadas con la noticia FÍSICA</p>
+<pre><code>  doc_fisica = db.getCollection(&#39;noticias&#39;).find({etiqueta_principal:&quot;FÍSICA&quot;}).next()
+  list_relacionadas = doc_fisica.noticias_relacionadas
+
+  list_relacionadas.forEach(
+      function(not_id){
+          not_rel = db.getCollection(&#39;noticias&#39;).find({_id: not_id}, {_id: 0}).next()
+          print(not_rel.etiqueta_principal)
+      }
+  )</code></pre></li>
+</ul>
+<h3 id="parte-3-relaciones-1-a-n-con-documentos-integrados">Parte 3: Relaciones 1 a n con documentos integrados</h3>
+<p>Tenemos información sobre equipos de baloncesto y jugadores de baloncesto. Cada equipo puede tener hasta 12 jugadores y, evidentemente, un jugador sólo pertenece a un equipo. Para modelar esta relación se ha optado por incrustar un documento dentro de otro.</p>
+<ul>
+<li><p><strong>¿Cuál será la colección principal?, ¿por qué?</strong></p>
+<p>La colección principal será el campeonato, y estará formada por los equipos, dentro de los cuales se encontrarán los jugadores.</p>
+<p>Debe ser así para poder asociar correctamente los jugadores a cada equipo, y asegurar que estos no estén en mas de un equipo.</p></li>
+</ul>
+<p><strong>a) Crear la colección "equipos" con la siguiente información</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Equipo</strong></th>
+<th><strong>Pabellón (espectadores)</strong></th>
+<th><strong>Fundación</strong></th>
+<th><strong>Sede </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>F.C. Barcelona</td>
+<td>Palau Blaugrana (7585 espectadores)</td>
+<td>1926</td>
+<td>Barcelona</td>
+</tr>
+<tr class="even">
+<td>FIATC Joventut</td>
+<td>Olímpico de Barcelona (12500 espectadores)</td>
+<td>1930</td>
+<td>Badalona</td>
+</tr>
+<tr class="odd">
+<td>Real Madrid C.F.</td>
+<td>Palacio de los Deportes (12500 espectadores)</td>
+<td>1932</td>
+<td>Madrid</td>
+</tr>
+</tbody>
+</table>
+<p>Además, cada documento del equipo debe tener la información de los jugadores</p>
+<table>
+<thead>
+<tr class="header">
+<th>Número</th>
+<th>Nombre</th>
+<th>Nacionalidad</th>
+<th>Altura</th>
+<th>Edad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5</td>
+<td>Doellman, Justin</td>
+<td>USA</td>
+<td>2.04</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>Huertas, Marcelinho</td>
+<td>ITA</td>
+<td>1.91</td>
+<td>31</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>Abrines, Álex</td>
+<td>ESP</td>
+<td>1.98</td>
+<td>21</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th>Número</th>
+<th>Nombre</th>
+<th>Nacionalidad</th>
+<th>Altura</th>
+<th>Edad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>Mallet, Demond</td>
+<td>USA</td>
+<td>1.82</td>
+<td>37</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Vidal, Sergi</td>
+<td>ESP</td>
+<td>1.98</td>
+<td>33</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Llovet, Nacho</td>
+<td>ESP</td>
+<td>2.01</td>
+<td>23</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th>Número</th>
+<th>Nombre</th>
+<th>Nacionalidad</th>
+<th>Altura</th>
+<th>Edad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>4</td>
+<td>Rivers, K.C.</td>
+<td>GNB</td>
+<td>1.96</td>
+<td>28</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Ayón, Gustavo</td>
+<td>MEX</td>
+<td>2.06</td>
+<td>29</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Campazzo, Facundo</td>
+<td>ARG</td>
+<td>1.79</td>
+<td>24</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>F.C. Barcelona</strong></p>
+<pre><code>  {
+      nombre_equipo: &quot;F.C. Barcelona&quot;,
+      pabellon: {
+          nombre: &quot;Palau Blaugrana&quot;,
+          espectadores: 7585
+      },
+      fundacion: 1926,
+      sede: &quot;Barcelona&quot;,
+      jugadores: [
+          {
+              numero: 5,
+              nombre: &quot;Doellman, Justin&quot;,
+              nacionalidad: &quot;USA&quot;,
+              altura: 2.04,
+              edad: 30
+          },
+          {
+              numero: 9,
+              nombre: &quot;Huertas, Marcelinho&quot;,
+              nacionalidad: &quot;ITA&quot;,
+              altura: 1.91,
+              edad: 31
+          },
+          {
+              numero: 10,
+              nombre: &quot;Abrines, Alex&quot;,
+              nacionalidad: &quot;ESP&quot;,
+              altura: 1.98,
+              edad: 21
+          }
+      ]    
+  }</code></pre></li>
+<li><p><strong>FIATC Joventut</strong></p>
+<pre><code>  {
+      &quot;_id&quot; : ObjectId(&quot;5fad4a77a0eb19a9b511b34f&quot;),
+      &quot;nombre_equipo&quot; : &quot;FIATC Joventut&quot;,
+      &quot;pabellon&quot; : {
+          &quot;nombre&quot; : &quot;Olímpico de Barcelona&quot;,
+          &quot;espectadores&quot; : 12500
+      },
+      &quot;fundacion&quot; : 1930,
+      &quot;sede&quot; : &quot;Badalona&quot;,
+      &quot;jugadores&quot; : [ 
+          {
+              &quot;numero&quot; : 0,
+              &quot;nombre&quot; : &quot;Mallet, Demond&quot;,
+              &quot;nacionalidad&quot; : &quot;USA&quot;,
+              &quot;altura&quot; : 1.82,
+              &quot;edad&quot; : 37
+          }, 
+          {
+              &quot;numero&quot; : 6,
+              &quot;nombre&quot; : &quot;Vidal, Sergi&quot;,
+              &quot;nacionalidad&quot; : &quot;ESP&quot;,
+              &quot;altura&quot; : 1.98,
+              &quot;edad&quot; : 33
+          }, 
+          {
+              &quot;numero&quot; : 9,
+              &quot;nombre&quot; : &quot;Llovet, Nacho&quot;,
+              &quot;nacionalidad&quot; : &quot;ESP&quot;,
+              &quot;altura&quot; : 2.01,
+              &quot;edad&quot; : 23
+          }
+      ]
+  }</code></pre></li>
+<li><p><strong>Real Madrid C.F.</strong></p>
+<pre><code>  {
+      &quot;_id&quot; : ObjectId(&quot;5fad60b9a0eb19a9b511b51b&quot;),
+      &quot;nombre_equipo&quot; : &quot;Real Madrid C.F.&quot;,
+      &quot;pabellon&quot; : {
+          &quot;nombre&quot; : &quot;Palacio de los Deportes&quot;,
+          &quot;espectadores&quot; : 12500
+      },
+      &quot;fundacion&quot; : 1932,
+      &quot;sede&quot; : &quot;Madrid&quot;,
+      &quot;jugadores&quot; : [ 
+          {
+              &quot;numero&quot; : 4,
+              &quot;nombre&quot; : &quot;Rivers K.C.&quot;,
+              &quot;nacionalidad&quot; : &quot;GNB&quot;,
+              &quot;altura&quot; : 1.96,
+              &quot;edad&quot; : 28
+          }, 
+          {
+              &quot;numero&quot; : 14,
+              &quot;nombre&quot; : &quot;Ayón, Gustavo&quot;,
+              &quot;nacionalidad&quot; : &quot;MEX&quot;,
+              &quot;altura&quot; : 2.06,
+              &quot;edad&quot; : 29
+          }, 
+          {
+              &quot;numero&quot; : 7,
+              &quot;nombre&quot; : &quot;Campazzo, Facundo&quot;,
+              &quot;nacionalidad&quot; : &quot;ARG&quot;,
+              &quot;altura&quot; : 1.79,
+              &quot;edad&quot; : 24
+          }
+      ]
+  }</code></pre></li>
+</ul>
+<p><strong>b) Realizar las siguientes consultas (estas consultas utilizan condiciones de búsqueda o proyectan sobre campos de los documentos integrados):</strong></p>
+<ul>
+<li><p>Obtener toda la información de los jugadores del Joventut</p>
+<pre><code>  db.getCollection(&#39;Equipos&#39;).aggregate([
+      {$match: {nombre_equipo: &quot;FIATC Joventut&quot;}},
+      {$project: {_id: 0, jugadores:1}}
+      ])</code></pre></li>
+<li><p>Obtener el nombre del equipo que tenga algún jugador argentino</p>
+<pre><code>  db.getCollection(&#39;Equipos&#39;).aggregate([
+      {$match: {&quot;jugadores.nacionalidad&quot;: &quot;ARG&quot;}},
+      {$project: {nombre_equipo:1, _id:0}}
+      ])</code></pre></li>
+<li><p>Obtener el nombre del equipo que tenga algún jugador español de 33 años</p>
+<pre><code>  db.getCollection(&#39;Equipos&#39;).aggregate([
+      {$match: {&quot;jugadores.edad&quot;: 33, &quot;jugadores.nacionalidad&quot;: &quot;ESP&quot;}},
+      {$project: {nombre_equipo:1, _id:0}}
+      ])</code></pre></li>
+<li><p>En MongoDB, una consulta devuelve un documento completo, es decir, no se pueden devolver sólo los elementos de un subdocumento (que a su vez están dentro de un array) que cumplan una condición. Por ejemplo, para obtener el nombre y la altura de los jugadores que miden más de 2 metros se puede utilizar la sentencia:</p>
+<pre><code>db.equipos.find({&quot;jugadores.altura&quot;: {$gt:2}}, {&quot;jugadores.nombre&quot;:1, &quot;jugadores.altura&quot;:1, _id:0})</code></pre>
+<p>Sin embargo, esta consulta devuelve todos los jugadores de un equipo que, al menos, tenga un jugador de más de 2 metros ya que los jugadores (subdocumentos) están dentro de un array.</p>
+<p>La solución debe hacerse a nivel de código. Se debe recoger la consulta en un cursor y recorrerlo para mostrar, únicamente, los elementos del array que cumplen la condición.</p>
+<pre><code>  jugadores_altos = db.getCollection(&#39;Equipos&#39;).find({&quot;jugadores.altura&quot;: {$gt:2}},
+                                    {&quot;jugadores.nombre&quot;:1, &quot;jugadores.altura&quot;:1, _id:0}).next()
+  array_jug = jugadores_altos.jugadores
+
+  array_jug.forEach(
+      function(jugador){
+          if(jugador.altura &gt;= 2){
+              print(&quot;nombre: &quot; + jugador.nombre + &quot;\naltura: &quot; + jugador.altura)
+          }
+      }
+  )             </code></pre></li>
+</ul>
+<h3 id="parte-4-relaciones-1-a-n-con-referencias">Parte 4. Relaciones 1 a n con referencias</h3>
+<p>Ahora queremos mantener los documentos de los equipos y los documentos de los jugadores en colecciones separadas y relacionarlos mediante referencias.</p>
+<ul>
+<li><p><strong>¿Qué es más eficiente?, ¿poner referencias de los jugadores en el equipo o poner la referencia del equipo en los jugadores?</strong></p>
+<p>Creemos sería mas eficiente poner las referencias de los jugadores dentro del equipo, puesto que nos permitiría acceder a todos los jugadores del equipo en una sola consulta.</p></li>
+</ul>
+<p><strong>a) Crear las colecciones "equipos" y "jugadores" y relacionarlas mediante referencias</strong></p>
+<p>Empezamos creando la colección de jugadores:</p>
+<pre><code>/* 1 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad87afa0eb19a9b511b8c4&quot;),
+    &quot;numero&quot; : 10,
+    &quot;nombre_jugador&quot; : &quot;Abrines, Alex&quot;,
+    &quot;nacionalidad&quot; : &quot;ESP&quot;,
+    &quot;altura&quot; : 1.98,
+    &quot;edad&quot; : 21
+}
+
+/* 2 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad87f3a0eb19a9b511b8d0&quot;),
+    &quot;numero&quot; : 5,
+    &quot;nombre_jugador&quot; : &quot;Doellman, Justin&quot;,
+    &quot;nacionalidad&quot; : &quot;USA&quot;,
+    &quot;altura&quot; : 2.04,
+    &quot;edad&quot; : 30
+}
+
+/* 3 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8807a0eb19a9b511b8d5&quot;),
+    &quot;numero&quot; : 9,
+    &quot;nombre_jugador&quot; : &quot;Huertas, Marcelino&quot;,
+    &quot;nacionalidad&quot; : &quot;ITA&quot;,
+    &quot;altura&quot; : 1.91,
+    &quot;edad&quot; : 31
+}
+
+/* 4 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8942a0eb19a9b511b90d&quot;),
+    &quot;numero&quot; : 0,
+    &quot;nombre_jugador&quot; : &quot;Mallet, Demond&quot;,
+    &quot;nacionalidad&quot; : &quot;USA&quot;,
+    &quot;altura&quot; : 1.82,
+    &quot;edad&quot; : 37
+}
+
+/* 5 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8942a0eb19a9b511b910&quot;),
+    &quot;numero&quot; : 6,
+    &quot;nombre_jugador&quot; : &quot;Vidal, Sergi&quot;,
+    &quot;nacionalidad&quot; : &quot;ESP&quot;,
+    &quot;altura&quot; : 1.98,
+    &quot;edad&quot; : 33
+}
+
+/* 6 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8942a0eb19a9b511b913&quot;),
+    &quot;numero&quot; : 9,
+    &quot;nombre_jugador&quot; : &quot;Llovet, Nacho&quot;,
+    &quot;nacionalidad&quot; : &quot;ESP&quot;,
+    &quot;altura&quot; : 2.01,
+    &quot;edad&quot; : 23
+}
+
+/* 7 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad89fea0eb19a9b511b92f&quot;),
+    &quot;numero&quot; : 4,
+    &quot;nombre_jugador&quot; : &quot;Rivers, K.C.&quot;,
+    &quot;nacionalidad&quot; : &quot;GNB&quot;,
+    &quot;altura&quot; : 1.96,
+    &quot;edad&quot; : 28
+}
+
+/* 8 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad89fea0eb19a9b511b932&quot;),
+    &quot;numero&quot; : 14,
+    &quot;nombre_jugador&quot; : &quot;Ayón, Gustavo&quot;,
+    &quot;nacionalidad&quot; : &quot;MEX&quot;,
+    &quot;altura&quot; : 2.06,
+    &quot;edad&quot; : 29
+}
+
+/* 9 */
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad89fea0eb19a9b511b935&quot;),
+    &quot;numero&quot; : 7,
+    &quot;nombre_jugador&quot; : &quot;Campazzo, Facundo&quot;,
+    &quot;nacionalidad&quot; : &quot;ARG&quot;,
+    &quot;altura&quot; : 1.79,
+    &quot;edad&quot; : 24
+}</code></pre>
+<p>Luego creamos los equipos, añadiendo las referencias a los jugadores:</p>
+<pre><code>{
+    &quot;_id&quot; : ObjectId(&quot;5fad8c0ea0eb19a9b511b988&quot;),
+    &quot;nombre_equipo&quot; : &quot;F.C. Barcelona&quot;,
+    &quot;pabellon&quot; : {
+        &quot;nombre&quot; : &quot;Palau Blaugrana&quot;,
+        &quot;espectadores&quot; : 7585
+    },
+    &quot;fundacion&quot; : 1926,
+    &quot;sede&quot; : &quot;Barcelona&quot;,
+    &quot;jugadores&quot; : [ 
+        ObjectId(&quot;5fad87f3a0eb19a9b511b8d0&quot;), 
+        ObjectId(&quot;5fad8807a0eb19a9b511b8d5&quot;), 
+        ObjectId(&quot;5fad87afa0eb19a9b511b8c4&quot;)
+    ]
+}
+
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8d50a0eb19a9b511b9c1&quot;),
+    &quot;nombre_equipo&quot; : &quot;FIATC Joventut&quot;,
+    &quot;pabellon&quot; : {
+        &quot;nombre&quot; : &quot;Olímpico de Barcelona&quot;,
+        &quot;espectadores&quot; : 12500
+    },
+    &quot;fundacion&quot; : 1930,
+    &quot;sede&quot; : &quot;Badalona&quot;,
+    &quot;jugadores&quot; : [ 
+        ObjectId(&quot;5fad8942a0eb19a9b511b90d&quot;), 
+        ObjectId(&quot;5fad8942a0eb19a9b511b910&quot;), 
+        ObjectId(&quot;5fad8942a0eb19a9b511b913&quot;)
+    ]
+}
+{
+    &quot;_id&quot; : ObjectId(&quot;5fad8e55a0eb19a9b511b9eb&quot;),
+    &quot;nombre_equipo&quot; : &quot;Real Madrid C.F.&quot;,
+    &quot;pabellon&quot; : {
+        &quot;nombre&quot; : &quot;Palacio de los deportes&quot;,
+        &quot;espectadores&quot; : 12500
+    },
+    &quot;fundacion&quot; : 1932,
+    &quot;sede&quot; : &quot;Madrid&quot;,
+    &quot;jugadores&quot; : [ 
+        ObjectId(&quot;5fad89fea0eb19a9b511b92f&quot;), 
+        ObjectId(&quot;5fad89fea0eb19a9b511b932&quot;), 
+        ObjectId(&quot;5fad89fea0eb19a9b511b935&quot;)
+    ]
+}</code></pre>
+<p><strong>b) Realizar las mismas consultas del ejercicio anterior</strong></p>
+<ul>
+<li><p>Obtener toda la información de los jugadores del Joventut</p>
+<pre><code>  equipo = db.getCollection(&#39;EquiposRef&#39;).find({nombre_equipo: &quot;FIATC Joventut&quot;}).next()
+  list_jugadores = equipo.jugadores
+
+  list_jugadores.forEach(
+      function(id_jugador){
+          jugador = db.getCollection(&#39;JugadoresRef&#39;).find({_id: id_jugador}, {_id: 0}).next()
+          print(jugador)
+      }
+  )</code></pre></li>
+<li><p>Obtener el nombre del equipo que tenga algún jugador argentino</p>
+<pre><code>  cur_jugadores = db.getCollection(&#39;JugadoresRef&#39;).find({nacionalidad: &quot;ARG&quot;}, {_id:1}).next()
+  id_jugador = cur_jugadores._id
+
+  equipo = db.getCollection(&#39;EquiposRef&#39;).find({jugadores:id_jugador}, {nombre_equipo:1, _id: 0}).next()
+  print(equipo.nombre_equipo)</code></pre></li>
+<li><p>Obtener el nombre del equipo que tenga algún jugador español de 33 años</p>
+<pre><code>  cur_jugadores = db.getCollection(&#39;JugadoresRef&#39;).find({nacionalidad: &quot;ESP&quot;, edad:33}, {_id:1}).next()
+  id_jugador = cur_jugadores._id
+
+  equipo = db.getCollection(&#39;EquiposRef&#39;).find({jugadores:id_jugador}, {nombre_equipo:1, _id: 0}).next()
+  print(equipo.nombre_equipo)</code></pre></li>
+</ul>
+<h4 id="conclusión">Conclusión</h4>
+<p>Tras realizar las consultas, hemos comprobado que la decisión de diseño de referenciar a los jugadores dentro del equipo ha resultado menos eficiente que haber referenciado el equipo dentro de los jugadores.</p>
+<p>Aunque el diseño actual permite acceder a todos los jugadores de un equipo, el buscar el equipo de un jugador individual requiere un esfuerzo adicional, puesto que hay que buscar primero el jugador que cumpla las características, y luego buscar su referencia dentro de los equipos.</p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+    "nombre" : "Sebastián",
+    "alta" : { $date : "2017-03-02T23:22:20.201Z" },
+    "deportes" : [
+        "golf",
+        "padel"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c13"),
+    "nombre" : "Marta",
+    "alta" : { $date : "2017-07-03T03:22:20.201Z" },
+    "deportes" : [
+        "tenis",
+        "golf",
+        "natación"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c15"),
+    "nombre" : "Luis",
+    "alta" : { $date : "2018-01-02T21:22:20.201Z" },
+    "deportes" : [
+        "tenis",
+        "baloncesto",
+        "pilates"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c17"),
+    "nombre" : "Sandra",
+    "alta" : { $date : "2018-01-02T21:22:20.201Z" },
+    "deportes" : [
+        "spinning",
+        "baloncesto",
+        "pilates",
+        "natación"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c19"),
+    "nombre" : "Andrés",
+    "alta" : { $date : "2018-01-08T21:28:20.201Z" },
+    "deportes" : [
+        "padel",
+        "tenis"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c1b"),
+    "nombre" : "Jennifer",
+    "alta" : { $date : "2018-01-12T21:32:20.201Z" },
+    "deportes" : [
+        "baloncesto",
+        "tenis"
+    ]
+}
+{
+    "_id" : ObjectId("5ac112d7eff2c6c1d8337c1d"),
+    "nombre" : "Rubén",
+    "alta" : { $date : "2018-02-08T22:28:20.201Z" },
+    "deportes" : [
+        "pilates",
+        "padel"
+    ]
+}

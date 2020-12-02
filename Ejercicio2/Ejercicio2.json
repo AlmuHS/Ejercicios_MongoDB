@@ -1,0 +1,78 @@
+{
+	"libros": [
+			{
+				"titulo": "El latido de la tierra",
+				"autor": "Luz Gabas",
+				"genero": "novela",
+				"informacion": {
+					"editorial": "Editorial Planeta",
+					"idioma": "Castellano",
+					"paginas": 448
+				},
+				"precios": [{
+						"tipo": "Tapa dura",
+						"precio": 21
+					},
+					{
+						"tipo": "eBook",
+						"precio": 11
+					}
+				]
+			},
+			{
+				"titulo": "Come comida real",
+				"autor": "Carlos Rios",
+				"genero":{
+					"0":"Autoayuda",
+					"1": "Dieta",
+					"2": "Nutricion",
+					"3": "Salud"
+					},
+				"informacion": {
+					"editorial": "Ediciones Paidos",
+					"idioma": "Castellano", 
+					"paginas": 360
+				},
+				"precios": [
+					{
+						"tipo": "Rustica con solapas",
+						"precio": 17
+					},
+					{
+						"tipo": "eBook",
+						"precio": 9.99
+					},
+					{
+						"tipo": "audiolibro",
+						"precio": 5.99
+					}
+				]
+			},
+			{
+				"titulo": "La casa alemana",
+				"autor": "Annete Hess",
+				"genero": "Novela literaria",
+				"informacion":{
+					"editorial": "Editorial Planeta",
+					"idioma":{
+						"0": "Inglés",
+						"1": "Castellano"
+					},
+					"paginas":464
+				},
+				"precios":[
+					{
+						"tipo": "Tapa dura con sobrecubiertas",
+						"precio": 17
+					}
+				]
+			}
+		]
+}		
+				
+				
+					
+					
+					
+			
+			

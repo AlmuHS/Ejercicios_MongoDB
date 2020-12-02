@@ -1,0 +1,121 @@
+{
+  "etiqueta_principal": "MARTE",
+  "titular": "Marte tuvo agua suficiente para cubrir todo el planeta",
+  "frases_destacadas": [
+    "La NASA dibuja un océano con condiciones para la vida durante 1.500 millones de años",
+    "Si hay vida en Marte no la traeremos a la Tierra, es demasiado peligroso"
+  ],
+  "autor": "Manuel Ansede",
+  "fecha": ISODate("2015-03-05T21:32:00Z"),
+  "etiquetas":[
+    "Marte",
+    "NASA",
+    "Planetas",
+    "Agencias espaciales",
+    "Sistema solar",
+    "Astronáutica",
+    "Universo",
+    "Astronomía",
+    "Ciencia"
+],
+
+  "noticia": "Se dice que un periodista es un vasto océano de conocimiento con un dedo de profundidad, y algo parecido le ocurría a Marte. Hace 4.500 millones de años, nuestro vecino en el universo albergó suficiente agua como para cubrir todo el planeta con un mar extenso pero superficial, con una profundidad media de solo 137 metros, según anuncia hoy la NASA"
+}
+
+{
+  "etiqueta_principal": "WhatsApp",
+  "titular": "Apple moderniza los emoticonos de WhatsApp para incluir colores de piel",
+  "frases_destacadas": [
+    "En la actualización de su sistema operativo incluirá seis tonos de piel y 300 nuevos iconos",
+    "Los españoles son los europeos que más usan WhatsApp"
+  ],
+  "autor": "El País",
+  "fecha": ISODate("2015-02-25T19:39:00Z"),
+
+  "etiquetas":[
+    "WhatsApp",
+    "Mensajería multimedia",
+    "Apple",
+    "Internet",
+    "Telefonía móvil multimedia",
+    "Empresas",
+    "Software",
+    "Telefonía móvil",
+    "Economía",
+    "Informática"
+],
+
+  "noticia": "Apple prepara una modernización de los emoticonos de WhatsApp para que reflejen la diversidad racial de la humanidad. Con la actualización de sus sistema operativo, que se espera para el próximo mes de marzo, los iconos tendrán hasta seis colores diferentes de piel, además de crear 300 nuevos, según publica la prensa estadounidense y recoge la agencia France Presse."
+}
+
+{
+  "etiqueta_principal": "CARTAS AL DIRECTOR",
+  "titular": "Redes sociales, ¿amigas o enemigas?",
+  "autor": "Dolores Vicória Lacalle Espinosa",
+  "fecha": ISODate("2015-03-05T00:00:00Z"),
+
+  "etiquetas":[
+    "Redes sociales",
+    "Privacidad internet",
+    "Seguridad internet",
+    "Internet",
+    "Delitos",
+    "Telecomunicaciones",
+    "Justicia",
+    "Comunicaciones"
+],
+
+  "noticia": "Las redes sociales se han convertido en esenciales en la vida de muchas personas, ya sea para estar en contacto, como para entretenernos y pasar el rato. Con el tiempo, he podido ver que aparte de estos beneficios, las redes sociales facilitan la investigación de hechos delictivos y desapariciones. Es cierto que su uso quita privacidad, ya que, por ejemplo, podemos compartir la localización actual, lo que facilita a cualquier individuo saber dónde estamos. Por este motivo, tenemos que vigilar lo que compartimos en la Red. Pero a veces, pueden ser unas auténticas aliadas."
+}
+
+{
+  "etiqueta_principal": "FÍSICA",
+  "titular": "La belleza cumple un siglo",
+  "frases_destacadas": [
+    "La gran teoría de Einstein sobre la gravedad, el espacio-tiempo y el cosmos llega a los 100 años en muy buena forma"
+    ],
+  "autor": "Javier Sampedro",
+  "fecha": ISODate("2015-03-08T10:37:00Z"),
+
+  "etiquetas":[
+    "Científicos",
+    "Historia Ciencia",
+    "Teoría Relatividad",
+    "Albert Einstein",
+    "Mecánica Cuántica",
+    "Física",
+    "Ciencias exactas",
+    "Historia",
+    "Ciencia"
+],
+
+  "noticia": "El científico británico Francis Crick decía que el único filósofo de la historia que ha tenido éxito es Albert Einstein. La boutade pretendía sobre todo irritar a los filósofos, pero también recoge un elemento de asombro –muy común entre los físicos— sobre la forma en que Einstein llegó a formular la relatividad general, su gran teoría sobre la gravedad, el espacio, el tiempo y el cosmos, que cumple ahora cien años. Porque Einstein partió menos de los datos que de la intuición, menos del conocimiento que de la imaginación, y pese a todo llegó a una teoría que no solo se ha mostrado en extremo eficaz y fructífera, sino que se reconoce entre sus colegas como la más bella de la historia de la ciencia."
+}
+
+{
+  "etiqueta_principal": "INTELIGENCIA ARTIFICIAL",
+  "titular": "Este programa juega mejor a los 'marcianitos' que un humano",
+  "frases_destacadas": [
+    "Expertos en inteligencia artificial de Google crean un algoritmo que aprende por sí solo a jugar con decenas de videojuegos de los años 80 como 'Space Invaders' o el 'Comecocos'",
+    "Un algoritmo informático se convierte en el mejor jugador de póquer del mundo",
+    "Lee este estudio en 'Nature' a través de EL PAÍS"
+    ],
+  "autor": "Miguel Ángel Criado",
+  "fecha": ISODate("2015-02-25T19:13:00Z"),
+
+  "etiquetas":[
+    "Inteligencia artificial",
+    "Videojuegos arcade",
+    "Computación",
+    "Videojuegos",
+    "Tecnología",
+    "Ocio",
+    "Informática",
+    "Ciencia",
+    "Estilo vida",
+    "Industria"
+],
+
+  "noticia": "La inteligencia artificial le está ganando la partida a la humana paso a paso. Las máquinas lo hacen mejor al ajedrez o al póquer, están desplazando a los cirujanos en los quirófanos y, en la Bolsa de Nueva York, el 75% de las operaciones las realizan algoritmos matemáticos. Ahora, expertos en inteligencia artificial de Google han creado un algoritmo capaz de conseguir más puntos que un humano jugando a los marcianitos. Y lo logra tras aprender de la experiencia, reforzado por los premios y reposando lo aprendido. Casi como lo hacen los seres humanos."
+}
+

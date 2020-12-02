@@ -1,0 +1,122 @@
+# Ejercicio 3
+## Empezando a trabajar con MongoDB. Operaciones CRUD
+
+### Enunciado
+
+Crea una  base  de  datos denominada  "elPais"  y, dentro  de  dicha  base  de  datos, una  colección denominada "noticias" para almacenar documentos con la siguiente estructura: 
+
+- etiquetaPrincipal: tipo texto(etiqueta que aparece al principio de la noticia)
+- titular: tipo texto
+- frasesDestacadas:  array  de  elementos  de tipo texto  (son  las  frases  que  aparecen  como subtítulo y en la sección "Más información")
+- autor: tipo texto
+- fecha: tipo fecha
+- etiquetas: array de palabras (son las que aparecen en la sección "Archivado en")
+- noticia: tipo texto (utilizar sólo el primer párrafo de la noticia
+
+Carga los documentos que se encuentran en el fichero "noticiasElPais.json" en la colección "noticias" de la base de datos "elPais"
+
+### Preguntas
+
+Realiza las siguientes consultas:
+
+1. Obtener las noticias de "Javier Sampedro"
+
+		db.getCollection('noticias').find({"autor": "Javier Sampedro"})
+
+2. Obtener las noticias de "Javier Sampedro" o de "Miguel Ángel Criado"
+
+		db.getCollection('noticias').find({"autor":{$in :["Javier Sampedro", "Miguel Ángel Criado"]}})
+
+3. Obtener las noticias que tengan la etiqueta "Ciencia"
+
+		db.getCollection('noticias').find({"etiquetas":"Ciencia"})
+
+4. Obtener las noticias que tengan la etiqueta "Apple" o la etiqueta "NASA"
+
+		db.getCollection('noticias').find({"etiquetas":{$in:["NASA", "Apple"]}})
+
+5. Obtener las noticias que tengan las etiquetas "Ciencia" y "Física"
+
+		db.getCollection('noticias').find({"etiquetas":{$all:["Ciencia", "Física"]}})
+
+6. Obtener las noticias que tengan la etiqueta "Ciencia" pero en la posición 9 del array
+
+		db.getCollection('noticias').find({"etiquetas.8":"Ciencia"})
+	
+	(El array empieza en 0)
+
+7. Obtener las noticias que no tengan la etiqueta "Ciencia"
+
+		db.getCollection('noticias').find({"etiquetas":{$nin:["Ciencia"]}})
+		
+8. Obtener las noticias con fecha posterior al 1 de marzo de 2015
+
+		db.getCollection('noticias').find({"fecha":{$gt: ISODate("2015-03-01")}})
+
+9. Obtener las 3 primeras noticias ordenadas alfabéticamente por la Etiqueta Principal
+
+		db.getCollection('noticias').find({}).sort({etiqueta_principal:1}).limit(3)
+
+10. Mostrar únicamente el Titular y las Frases Destacadas de todas las noticias  
+
+		db.getCollection('noticias').find({},{"titular":1, "frases_destacadas":1})
+
+11. Mostrar únicamente el Titular y las 5 primeras etiquetas de todas las noticias
+
+		db.getCollection('noticias').find({},{"titular":1, "etiquetas":{$slice:5}})
+
+12. Mostrar únicamente el Titular y las 3 últimas etiquetas de todas las noticias
+
+		db.getCollection('noticias').find({},{"titular":1, "etiquetas":{$slice:-3}})
+ 
+13. Mostrar todos los campos menos las etiquetas de las noticias del día 25 de febrero de 2015
+
+		db.getCollection('noticias').find({"fecha":{$gte:ISODate("2015-02-25"), $lt: ISODate("2015-02-26")}},  {"etiquetas":0})
+
+14. Obtener las noticias que no tengan el campo "frases_destacadas"   
+
+		db.getCollection('noticias').find({"frases_destacadas":{$exists:false}})
+
+15. Obtener las  noticias  que  tengan  el  campo  "frases_destacadas" pero no  tengan  la  etiqueta "Informática"  
+
+		db.getCollection('noticias').find({"frases_destacadas":{$exists:true}, "etiquetas":{$nin:["Informática"]}})
+
+16. Mostrar las noticias que tienen 10 etiquetas  
+
+		db.getCollection('noticias').find({etiquetas:{$size: 10}})
+
+17. Añadir la etiqueta "Relatividad" a la noticia cuya Etiqueta Principal es "FÍSICA"    
+
+		db.getCollection('noticias').update({"etiqueta_principal":"FÍSICA"},{$push:{etiquetas:"Relatividad"}})
+
+18. Añadir la etiqueta "Nuclear" a la noticia cuya Etiqueta Principal es "FÍSICA"pero en la primera posición
+
+		db.getCollection('noticias').update({"etiqueta_principal":"FÍSICA"},{$push:{"etiquetas":{$each:["Nuclear"],$position: 0}}})
+
+19. Eliminar las etiqueta "Relatividad" y "Nuclear"a la noticia cuya Etiqueta Principal es "FÍSICA"
+
+		db.getCollection('noticias').update({"etiqueta_principal":"FÍSICA"},{$pullAll:{"etiquetas":["Relatividad","Nuclear"]}})
+
+20. Eliminar el campo "fecha" de todos los documentos que tengan la etiqueta "Ciencia"  
+
+		db.getCollection('noticias').update({"etiquetas":"Ciencia"},{$unset:{fecha:0}}, {multi:true})
+
+21. Añadir el campo "frases_destacadas" a la noticia con Etiqueta Principal "CARTAS AL DIRECTOR" con la frase "Yo soy más de twiter"  
+
+		db.getCollection('noticias').update({"etiqueta_principal":"CARTAS AL DIRECTOR"},{$set:{frases_destacadas:"Yo soy mas de Twitter"}})
+
+22. Añadir a todas las noticias una etiqueta llamada "Nueva Etiqueta" en el campo "etiquetas"   
+
+		db.getCollection('noticias').update({},{$push:{etiquetas:"Nueva etiqueta"}}, {multi:true})
+
+23. Eliminar de todas las noticias la etiqueta "Nueva Etiqueta" en el campo "etiquetas"  
+
+		db.getCollection('noticias').update({},{$pull:{etiquetas:"Nueva etiqueta"}}, {multi:true})
+
+24. Añadir a todas las noticias la etiqueta "Internet" en el campo "etiquetas". Tened en cuenta que si la etiqueta "Internet" ya existe en un documento, no debe insertarse de nuevo  
+
+		db.getCollection('noticias').update({},{$addToSet:{etiquetas:"Internet"}}, {multi:true})
+  
+25. Eliminar los documentos que tengan la etiqueta "Ciencia" en el campo "etiquetas"
+
+		db.getCollection('noticias').remove({etiquetas:"Ciencia"})
